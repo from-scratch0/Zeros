@@ -38,6 +38,7 @@
   "dependencies": {
     "@babel/runtime": "^7.13.10",
     "babel-preset-mobx": "^2.0.0",
+    "bootstrap": "^5.0.0-beta3",
     "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.21",
     "react": "^17.0.2",
