@@ -1,14 +1,17 @@
-import { range } from "lodash";
+import { range, reduce } from "lodash";
 import React, { useMemo, useState, useCallback, useEffect } from "react";
-import { createEditor, Transforms, Editor, Range } from 'slate';
+import ReactDOM from "react-dom";
+import { createEditor, Transforms, Editor, Range, Text } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
-import { getBlock, editBlock } from "./services/fakeArticleService";
+import { CodeElement, DefaultElement, Leaf } from "./common/customElements";
+import { editBlock } from '../services/fakeArticleService';
+import { CustomEditor } from "@/scripts/customEditor";
+import ZerosToggle from './zerosToggle';
+import _ from "lodash";
 
-const SlateBlock = ({ blockId }) => {
+const SlateBlock = ({ blockId, initialValue, visible }) => {
     const editor = useMemo(() => withReact(createEditor()), []);
 
-    const { type: type, children: children} = getBlock(blockId);  
-    const initialValue = { type, children };
     const [value, setValue] = useState(
         [initialValue] || [
             {
@@ -27,17 +30,34 @@ const SlateBlock = ({ blockId }) => {
         }
     }, []);
 
+    const renderLeaf = useCallback(props => {
+        return <Leaf {...props} />
+    }, [])
+
     const handleKeyDown = (e) => {
-        if (e.ctrlKey && e.key === 'u') {
-            e.preventDefault();
-            const [match] = Editor.nodes(editor, {
-              match: n => n.type === 'code',
-            });
-            Transforms.setNodes(
-              editor,
-              { type: match ? 'paragraph' : 'code' },
-              { match: n => Editor.isBlock(editor, n) }
-            );
+        if (e.ctrlKey) {
+            
+            switch (e.key) {
+                case 'b': {
+                    CustomEditor.toggleFormat(e, editor, 'bold');
+                    break;
+                }
+
+                case 'e': {
+                    CustomEditor.toggleFormat(e, editor, 'code');
+                    break;
+                }
+                
+                case 'i': {
+                    CustomEditor.toggleFormat(e, editor, 'italic');
+                    break;
+                }
+
+                case 'u': {
+                    CustomEditor.toggleFormat(e, editor, 'underline');
+                    break;
+                }
+            }
         }
     }
 
@@ -48,16 +68,15 @@ const SlateBlock = ({ blockId }) => {
             onChange={newValue => {
                 setValue(newValue);
                 const content = JSON.stringify(value);
-                editBlock(blockId, content);
+                editBlock(blockId, content); 
             }}
         >
-            <div className="slate">
+            <div className="slate" >
                 <Editable 
+                    //data-block-id={blockId}
                     renderElement={renderElement}
+                    renderLeaf={renderLeaf}
                     className="editable"
-                    onMouseover={event => {
-                        event.preventDefault();
-                    }}
                     onKeyDown={handleKeyDown}
                 />
                 <button
@@ -81,16 +100,5 @@ const SlateBlock = ({ blockId }) => {
     )
 }
 
-const CodeElement = props => {
-    return (
-      <pre {...props.attributes}>
-        <code>{props.children}</code>
-      </pre>
-    )
-}
-  
-const DefaultElement = props => {
-    return <p {...props.attributes}>{props.children}</p>
-}
-
 export default SlateBlock;
+

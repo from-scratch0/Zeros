@@ -1,15 +1,32 @@
 import React, { Component } from 'react';
-import ToggleBar from './common/toggleBar';
+import { CustomEditor } from "@/scripts/customEditor";
 
-class ZerosToggle extends Component {
-    toggleItems = [
-        { func: "toggleBoldMark", label: "B" },
-        { func: "toggleCodeBlock", label: "code" },
+const ZerosToggle = () => {
+    const toggleItems = [
+        { func: "bold", label: "B" },
+        { func: "italic", label: "i" },
+        { func: "underline", label: "U" },
+        { func: "linethrough", label: "S" },
+        { func: "code", label: "<>" },
     ];
 
-    render() { 
-        return  <ToggleBar toggleItems={this.toggleItems} />;
-    }
+    return ( 
+        <div id="toggle-bar" className="btn-group btn-group-sm" role="group" aria-label="First group">
+            { toggleItems.map((item) => {
+                return <button key={item.func} type="button" className="btn btn-light" 
+                    style={{ 
+                        fontWeight: item.label == "B" ? 'bold' : 'normal',
+                        fontStyle: item.label == "i" ? 'italic' : 'normal',
+                        textDecoration: item.label == "U" ? 'underline': (item.label == "S" ? 'line-through': null),
+                    }}
+                    onMouseDown={(e) => {
+                    }}
+                >
+                    {item.label}
+                </button> 
+            })}
+        </div> 
+     );
 }
  
 export default ZerosToggle;

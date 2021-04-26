@@ -8,12 +8,17 @@ const blocks = [
     {
         _id: "02",
         type: 'paragraph',
-        children: [{ text: '请点击任何地方开始你的书写。' }],
+        children: [{ text: 'Welcome to ZEROS!' }],
     },
     {
         _id: "03",
         type: 'paragraph',
-        children: [{ text: '选取你需要特殊处理的文本进行加粗、删除线、高亮、斜体等一系列处理。' }],
+        children: [{ text: '请点击任何地方开始你的书写。' }],
+    },
+    {
+        _id: "04",
+        type: 'paragraph',
+        children: [{ text: '选取你需要' }, { text: '特殊处理', bold: true }, { text: '的' }, { text: '文本 ', italic: true }, { text: '进行' }, { text: '各种', underline: true }, { text: '你想要的处理' }],
     },
 ];
 

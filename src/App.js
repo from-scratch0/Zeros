@@ -1,5 +1,5 @@
 import React from "react";
-import AppBlocks from "./appBlocks";
+import AppBlocks from "./components/appBlocks";
 import './style.css';
 
 const App = () => {
