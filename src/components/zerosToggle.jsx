@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { CustomEditor } from "@/scripts/customEditor";
+import { useSlate } from 'slate-react';
 
 const ZerosToggle = () => {
+    const editor = useSlate();
+
     const toggleItems = [
         { func: "bold", label: "B" },
         { func: "italic", label: "i" },
@@ -20,6 +23,7 @@ const ZerosToggle = () => {
                         textDecoration: item.label == "U" ? 'underline': (item.label == "S" ? 'line-through': null),
                     }}
                     onMouseDown={(e) => {
+                        CustomEditor.toggleFormat(e, editor, item.func);
                     }}
                 >
                     {item.label}

@@ -2,14 +2,14 @@ import { range, reduce } from "lodash";
 import React, { useMemo, useState, useCallback, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { createEditor, Transforms, Editor, Range, Text } from 'slate';
-import { Slate, Editable, withReact } from 'slate-react';
+import { Slate, Editable, withReact, useSelected } from 'slate-react';
 import { CodeElement, DefaultElement, Leaf } from "./common/customElements";
 import { editBlock } from '../services/fakeArticleService';
 import { CustomEditor } from "@/scripts/customEditor";
 import ZerosToggle from './zerosToggle';
 import _ from "lodash";
 
-const SlateBlock = ({ blockId, initialValue, visible }) => {
+const SlateBlock = ({ blockId, initialValue }) => {
     const editor = useMemo(() => withReact(createEditor()), []);
 
     const [value, setValue] = useState(
@@ -20,6 +20,32 @@ const SlateBlock = ({ blockId, initialValue, visible }) => {
             },
         ]
     );
+
+    const [visible, setVisible] = useState(false);
+    const selected = useSelected();
+
+    const handleChange = (value) => {
+        // value
+        setValue(value);
+        const content = JSON.stringify(value);
+        editBlock(blockId, content); 
+
+        // toggleBar
+        const selection = editor.selection;
+        if(!selection || Range.isCollapsed(selection) ) setVisible(false);
+
+        const toggleBarShow = _.debounce(() => {
+            setVisible(true);
+            const clientRect = document.getSelection().getRangeAt(0).getBoundingClientRect();
+            const toggleBar = document.getElementById("toggle-bar");
+            toggleBar.style.left = `${clientRect.left + 20}px`;
+            toggleBar.style.top = `${clientRect.top - 47}px`;
+            toggleBar.style.left = clientRect.left;
+        }, 400);
+        if(selection && !Range.isCollapsed(selection) ) { 
+            toggleBarShow();
+        }
+    }
 
     const renderElement = useCallback(props => {
         switch (props.element.type) {
@@ -65,12 +91,9 @@ const SlateBlock = ({ blockId, initialValue, visible }) => {
         <Slate 
             editor={editor} 
             value={value} 
-            onChange={newValue => {
-                setValue(newValue);
-                const content = JSON.stringify(value);
-                editBlock(blockId, content); 
-            }}
+            onChange={handleChange}
         >
+            {visible ? <ZerosToggle blockId={blockId}/> : null}
             <div className="slate" >
                 <Editable 
                     //data-block-id={blockId}
@@ -79,22 +102,24 @@ const SlateBlock = ({ blockId, initialValue, visible }) => {
                     className="editable"
                     onKeyDown={handleKeyDown}
                 />
-                <button
-                    className="block-button switch"
-                    onMouseDown={event => {
-                        event.preventDefault();
-                    }}
-                >
-                ···
-                </button>
-                <button
-                    className="block-button add-after"
-                    onMouseDown={event => {
-                        event.preventDefault();
-                    }}
-                >
-                +
-                </button>
+                <div className="block-buttons">
+                    <button
+                        className="block-button switch"
+                        onMouseDown={event => {
+                            event.preventDefault();
+                        }}
+                    >
+                    ···
+                    </button>
+                    <button
+                        className="block-button add-after"
+                        onMouseDown={event => {
+                            event.preventDefault();
+                        }}
+                    >
+                    +
+                    </button>
+                </div>
             </div>
         </Slate>
     )

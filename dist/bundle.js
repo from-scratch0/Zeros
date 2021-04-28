@@ -245,11 +245,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "./node_modules/@babel/runtime/helpers/esm/slicedToArray.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _zerosToggle__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./zerosToggle */ "./src/components/zerosToggle.jsx");
-/* harmony import */ var _services_fakeArticleService__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../services/fakeArticleService */ "./src/services/fakeArticleService.js");
-/* harmony import */ var _slateBlock__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./slateBlock */ "./src/components/slateBlock.jsx");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _services_fakeArticleService__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../services/fakeArticleService */ "./src/services/fakeArticleService.js");
+/* harmony import */ var _slateBlock__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./slateBlock */ "./src/components/slateBlock.jsx");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_4__);
 
 
 
@@ -259,7 +258,7 @@ __webpack_require__.r(__webpack_exports__);
 
 function getContent() {
   return new Promise(function (resolve) {
-    resolve((0,_services_fakeArticleService__WEBPACK_IMPORTED_MODULE_3__.getBlocks)());
+    resolve((0,_services_fakeArticleService__WEBPACK_IMPORTED_MODULE_2__.getBlocks)());
   });
 }
 
@@ -275,44 +274,19 @@ var AppBlocks = function AppBlocks() {
     });
   }, [content]);
 
-  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false),
-      _useState4 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__.default)(_useState3, 2),
-      visible = _useState4[0],
-      setVisible = _useState4[1];
+  document.ondragstart = function () {
+    return false;
+  };
 
-  (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(function () {
-    document.ondragstart = function () {
-      return false;
-    };
-
-    document.onselectionchange = lodash__WEBPACK_IMPORTED_MODULE_5___default().debounce(function (e) {
-      var selection = document.getSelection();
-      var toggleBar;
-
-      if (!selection.isCollapsed) {
-        var clientRect = selection.getRangeAt(0).getBoundingClientRect();
-        e.preventDefault();
-        setVisible(true);
-        toggleBar = document.getElementById("toggle-bar"); //toggleBar.style.visibility = "visible";
-
-        toggleBar.style.left = "".concat(clientRect.left + 20, "px");
-        toggleBar.style.top = "".concat(clientRect.top - 47, "px");
-        toggleBar.style.left = clientRect.left;
-      } else {
-        setVisible(false);
-      }
-    }, 400);
-  }, [document.getSelection()]);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     id: "editArea"
-  }, visible ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_zerosToggle__WEBPACK_IMPORTED_MODULE_2__.default, null) : null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     className: "slateBlocks"
   }, content.map(function (item) {
-    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_slateBlock__WEBPACK_IMPORTED_MODULE_4__.default, {
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_slateBlock__WEBPACK_IMPORTED_MODULE_3__.default, {
       key: item._id,
       blockId: item._id,
-      initialValue: lodash__WEBPACK_IMPORTED_MODULE_5___default().pick(item, ["type", "children"]),
-      visible: visible
+      initialValue: lodash__WEBPACK_IMPORTED_MODULE_4___default().pick(item, ["type", "children"])
     });
   })));
 };
@@ -398,8 +372,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var SlateBlock = function SlateBlock(_ref) {
   var blockId = _ref.blockId,
-      initialValue = _ref.initialValue,
-      visible = _ref.visible;
+      initialValue = _ref.initialValue;
   var editor = (0,react__WEBPACK_IMPORTED_MODULE_2__.useMemo)(function () {
     return (0,slate_react__WEBPACK_IMPORTED_MODULE_8__.withReact)((0,slate__WEBPACK_IMPORTED_MODULE_9__.createEditor)());
   }, []);
@@ -408,6 +381,36 @@ var SlateBlock = function SlateBlock(_ref) {
       _useState2 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__.default)(_useState, 2),
       value = _useState2[0],
       setValue = _useState2[1];
+
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_2__.useState)(false),
+      _useState4 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__.default)(_useState3, 2),
+      visible = _useState4[0],
+      setVisible = _useState4[1];
+
+  var selected = (0,slate_react__WEBPACK_IMPORTED_MODULE_8__.useSelected)();
+
+  var handleChange = function handleChange(value) {
+    // value
+    setValue(value);
+    var content = JSON.stringify(value);
+    (0,_services_fakeArticleService__WEBPACK_IMPORTED_MODULE_5__.editBlock)(blockId, content); // toggleBar
+
+    var selection = editor.selection;
+    if (!selection || slate__WEBPACK_IMPORTED_MODULE_9__.Range.isCollapsed(selection)) setVisible(false);
+
+    var toggleBarShow = lodash__WEBPACK_IMPORTED_MODULE_1___default().debounce(function () {
+      setVisible(true);
+      var clientRect = document.getSelection().getRangeAt(0).getBoundingClientRect();
+      var toggleBar = document.getElementById("toggle-bar");
+      toggleBar.style.left = "".concat(clientRect.left + 20, "px");
+      toggleBar.style.top = "".concat(clientRect.top - 47, "px");
+      toggleBar.style.left = clientRect.left;
+    }, 400);
+
+    if (selection && !slate__WEBPACK_IMPORTED_MODULE_9__.Range.isCollapsed(selection)) {
+      toggleBarShow();
+    }
+  };
 
   var renderElement = (0,react__WEBPACK_IMPORTED_MODULE_2__.useCallback)(function (props) {
     switch (props.element.type) {
@@ -455,12 +458,10 @@ var SlateBlock = function SlateBlock(_ref) {
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(slate_react__WEBPACK_IMPORTED_MODULE_8__.Slate, {
     editor: editor,
     value: value,
-    onChange: function onChange(newValue) {
-      setValue(newValue);
-      var content = JSON.stringify(value);
-      (0,_services_fakeArticleService__WEBPACK_IMPORTED_MODULE_5__.editBlock)(blockId, content);
-    }
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
+    onChange: handleChange
+  }, visible ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_zerosToggle__WEBPACK_IMPORTED_MODULE_7__.default, {
+    blockId: blockId
+  }) : null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
     className: "slate"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(slate_react__WEBPACK_IMPORTED_MODULE_8__.Editable //data-block-id={blockId}
   , {
@@ -468,7 +469,9 @@ var SlateBlock = function SlateBlock(_ref) {
     renderLeaf: renderLeaf,
     className: "editable",
     onKeyDown: handleKeyDown
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", {
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
+    className: "block-buttons"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", {
     className: "block-button switch",
     onMouseDown: function onMouseDown(event) {
       event.preventDefault();
@@ -478,7 +481,7 @@ var SlateBlock = function SlateBlock(_ref) {
     onMouseDown: function onMouseDown(event) {
       event.preventDefault();
     }
-  }, "+")));
+  }, "+"))));
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (SlateBlock);
@@ -498,10 +501,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _scripts_customEditor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @/scripts/customEditor */ "./src/scripts/customEditor.js");
+/* harmony import */ var slate_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! slate-react */ "./node_modules/slate-react/dist/index.es.js");
+
 
 
 
 var ZerosToggle = function ZerosToggle() {
+  var editor = (0,slate_react__WEBPACK_IMPORTED_MODULE_2__.useSlate)();
   var toggleItems = [{
     func: "bold",
     label: "B"
@@ -533,7 +539,9 @@ var ZerosToggle = function ZerosToggle() {
         fontStyle: item.label == "i" ? 'italic' : 'normal',
         textDecoration: item.label == "U" ? 'underline' : item.label == "S" ? 'line-through' : null
       },
-      onMouseDown: function onMouseDown(e) {}
+      onMouseDown: function onMouseDown(e) {
+        _scripts_customEditor__WEBPACK_IMPORTED_MODULE_1__.CustomEditor.toggleFormat(e, editor, item.func);
+      }
     }, item.label);
   }));
 };
