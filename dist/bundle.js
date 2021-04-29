@@ -278,6 +278,31 @@ var AppBlocks = function AppBlocks() {
     return false;
   };
 
+  var addBlock = function addBlock(blockId) {
+    var newItem = {
+      _id: Date.now().toString(),
+      type: 'paragraph',
+      selection: {
+        anchor: {
+          path: [0, 0],
+          offset: 0
+        },
+        focus: {
+          path: [0, 0],
+          offset: 2
+        }
+      },
+      children: [{
+        text: ''
+      }]
+    };
+    content.splice(lodash__WEBPACK_IMPORTED_MODULE_4___default().findIndex(content, function (item) {
+      return item._id == blockId;
+    }) + 1, 0, newItem);
+    setContent(content.slice()); //
+    // const point = Editor.start(editor, [0, 0]);
+  };
+
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     id: "editArea"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
@@ -286,7 +311,8 @@ var AppBlocks = function AppBlocks() {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_slateBlock__WEBPACK_IMPORTED_MODULE_3__.default, {
       key: item._id,
       blockId: item._id,
-      initialValue: lodash__WEBPACK_IMPORTED_MODULE_4___default().pick(item, ["type", "children"])
+      initialValue: lodash__WEBPACK_IMPORTED_MODULE_4___default().pick(item, ["type", "selection", "children"]),
+      addBlock: addBlock
     });
   })));
 };
@@ -372,7 +398,8 @@ __webpack_require__.r(__webpack_exports__);
 
 var SlateBlock = function SlateBlock(_ref) {
   var blockId = _ref.blockId,
-      initialValue = _ref.initialValue;
+      initialValue = _ref.initialValue,
+      addBlock = _ref.addBlock;
   var editor = (0,react__WEBPACK_IMPORTED_MODULE_2__.useMemo)(function () {
     return (0,slate_react__WEBPACK_IMPORTED_MODULE_8__.withReact)((0,slate__WEBPACK_IMPORTED_MODULE_9__.createEditor)());
   }, []);
@@ -396,7 +423,11 @@ var SlateBlock = function SlateBlock(_ref) {
     (0,_services_fakeArticleService__WEBPACK_IMPORTED_MODULE_5__.editBlock)(blockId, content); // toggleBar
 
     var selection = editor.selection;
-    if (!selection || slate__WEBPACK_IMPORTED_MODULE_9__.Range.isCollapsed(selection)) setVisible(false);
+
+    if (!selection || slate__WEBPACK_IMPORTED_MODULE_9__.Range.isCollapsed(selection)) {
+      setVisible(false);
+      return;
+    }
 
     var toggleBarShow = lodash__WEBPACK_IMPORTED_MODULE_1___default().debounce(function () {
       setVisible(true);
@@ -462,24 +493,25 @@ var SlateBlock = function SlateBlock(_ref) {
   }, visible ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_zerosToggle__WEBPACK_IMPORTED_MODULE_7__.default, {
     blockId: blockId
   }) : null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
-    className: "slate"
+    className: "slate",
+    "data-blockid": blockId
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(slate_react__WEBPACK_IMPORTED_MODULE_8__.Editable //data-block-id={blockId}
   , {
     renderElement: renderElement,
     renderLeaf: renderLeaf,
     className: "editable",
     onKeyDown: handleKeyDown
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
-    className: "block-buttons"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", {
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", {
     className: "block-button switch",
     onMouseDown: function onMouseDown(event) {
       event.preventDefault();
     }
-  }, "\xB7\xB7\xB7"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", {
+  }, "\xB7\xB7\xB7"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
+    className: "block-buttons"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", {
     className: "block-button add-after",
-    onMouseDown: function onMouseDown(event) {
-      event.preventDefault();
+    onMouseDown: function onMouseDown() {
+      return addBlock(blockId);
     }
   }, "+"))));
 };
@@ -789,7 +821,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "#editArea {\r\n  display: flex;\r\n  justify-content: center;\r\n  margin-top: 60px;\r\n}\r\n\r\n.slateBlocks {\r\n  width: 50%;\r\n  color: rgb(90, 90, 90);\r\n}\r\n\r\n.slate {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: flex-start;\r\n  margin: 5px 0;\r\n}\r\n\r\n.editable {\r\n  width: 92%;\r\n  line-height: 25px;\r\n}\r\n\r\n::selection {\r\n  color: #fff;\r\n  background-color: mediumaquamarine;\r\n}\r\n\r\n.slate .block-button {\r\n  visibility: visible;\r\n  width: auto;\r\n  border: none;\r\n  background-color: white;\r\n  color: gray;\r\n  border-radius: 2px;\r\n  font-size: 20px;\r\n  cursor: pointer;\r\n}\r\n\r\n.slate .block-button:hover {\r\n  background-color: rgb(223, 223, 223);\r\n}\r\n\r\n#toggle-bar {\r\n  position: absolute;\r\n  z-index: 9999;\r\n  box-shadow: 3px 5px 10px rgb(0 0 0 / 20%);\r\n  opacity: 0.95;\r\n  background-color: white;\r\n  transition: visibility 0.3s ease-in;\r\n}\r\n", "",{"version":3,"sources":["webpack://./src/style.css"],"names":[],"mappings":"AAAA;EACE,aAAa;EACb,uBAAuB;EACvB,gBAAgB;AAClB;;AAEA;EACE,UAAU;EACV,sBAAsB;AACxB;;AAEA;EACE,aAAa;EACb,8BAA8B;EAC9B,uBAAuB;EACvB,aAAa;AACf;;AAEA;EACE,UAAU;EACV,iBAAiB;AACnB;;AAEA;EACE,WAAW;EACX,kCAAkC;AACpC;;AAEA;EACE,mBAAmB;EACnB,WAAW;EACX,YAAY;EACZ,uBAAuB;EACvB,WAAW;EACX,kBAAkB;EAClB,eAAe;EACf,eAAe;AACjB;;AAEA;EACE,oCAAoC;AACtC;;AAEA;EACE,kBAAkB;EAClB,aAAa;EACb,yCAAyC;EACzC,aAAa;EACb,uBAAuB;EACvB,mCAAmC;AACrC","sourcesContent":["#editArea {\r\n  display: flex;\r\n  justify-content: center;\r\n  margin-top: 60px;\r\n}\r\n\r\n.slateBlocks {\r\n  width: 50%;\r\n  color: rgb(90, 90, 90);\r\n}\r\n\r\n.slate {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: flex-start;\r\n  margin: 5px 0;\r\n}\r\n\r\n.editable {\r\n  width: 92%;\r\n  line-height: 25px;\r\n}\r\n\r\n::selection {\r\n  color: #fff;\r\n  background-color: mediumaquamarine;\r\n}\r\n\r\n.slate .block-button {\r\n  visibility: visible;\r\n  width: auto;\r\n  border: none;\r\n  background-color: white;\r\n  color: gray;\r\n  border-radius: 2px;\r\n  font-size: 20px;\r\n  cursor: pointer;\r\n}\r\n\r\n.slate .block-button:hover {\r\n  background-color: rgb(223, 223, 223);\r\n}\r\n\r\n#toggle-bar {\r\n  position: absolute;\r\n  z-index: 9999;\r\n  box-shadow: 3px 5px 10px rgb(0 0 0 / 20%);\r\n  opacity: 0.95;\r\n  background-color: white;\r\n  transition: visibility 0.3s ease-in;\r\n}\r\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "#editArea {\r\n  display: flex;\r\n  justify-content: center;\r\n  margin-top: 60px;\r\n}\r\n\r\n.slateBlocks {\r\n  width: 50%;\r\n  color: rgb(90, 90, 90);\r\n}\r\n\r\n.slate {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: flex-start;\r\n  margin: 5px 0;\r\n}\r\n\r\n.editable {\r\n  width: 92%;\r\n  line-height: 25px;\r\n}\r\n\r\n::selection {\r\n  color: #fff;\r\n  background-color: mediumaquamarine;\r\n}\r\n\r\n.slate .block-button {\r\n  visibility: hidden;\r\n  width: auto;\r\n  border: none;\r\n  background-color: white;\r\n  color: gray;\r\n  border-radius: 2px;\r\n  font-size: 20px;\r\n  cursor: pointer;\r\n  transition: visibility 0.3s ease;\r\n}\r\n\r\n.slate:hover .block-button {\r\n  visibility: visible;\r\n}\r\n\r\n.slate .block-button:hover {\r\n  background-color: rgb(223, 223, 223);\r\n}\r\n\r\n#toggle-bar {\r\n  position: absolute;\r\n  z-index: 9999;\r\n  box-shadow: 3px 5px 10px rgb(0 0 0 / 20%);\r\n  opacity: 0.95;\r\n  background-color: white;\r\n  transition: visibility 0.3s ease-in;\r\n}\r\n", "",{"version":3,"sources":["webpack://./src/style.css"],"names":[],"mappings":"AAAA;EACE,aAAa;EACb,uBAAuB;EACvB,gBAAgB;AAClB;;AAEA;EACE,UAAU;EACV,sBAAsB;AACxB;;AAEA;EACE,aAAa;EACb,8BAA8B;EAC9B,uBAAuB;EACvB,aAAa;AACf;;AAEA;EACE,UAAU;EACV,iBAAiB;AACnB;;AAEA;EACE,WAAW;EACX,kCAAkC;AACpC;;AAEA;EACE,kBAAkB;EAClB,WAAW;EACX,YAAY;EACZ,uBAAuB;EACvB,WAAW;EACX,kBAAkB;EAClB,eAAe;EACf,eAAe;EACf,gCAAgC;AAClC;;AAEA;EACE,mBAAmB;AACrB;;AAEA;EACE,oCAAoC;AACtC;;AAEA;EACE,kBAAkB;EAClB,aAAa;EACb,yCAAyC;EACzC,aAAa;EACb,uBAAuB;EACvB,mCAAmC;AACrC","sourcesContent":["#editArea {\r\n  display: flex;\r\n  justify-content: center;\r\n  margin-top: 60px;\r\n}\r\n\r\n.slateBlocks {\r\n  width: 50%;\r\n  color: rgb(90, 90, 90);\r\n}\r\n\r\n.slate {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: flex-start;\r\n  margin: 5px 0;\r\n}\r\n\r\n.editable {\r\n  width: 92%;\r\n  line-height: 25px;\r\n}\r\n\r\n::selection {\r\n  color: #fff;\r\n  background-color: mediumaquamarine;\r\n}\r\n\r\n.slate .block-button {\r\n  visibility: hidden;\r\n  width: auto;\r\n  border: none;\r\n  background-color: white;\r\n  color: gray;\r\n  border-radius: 2px;\r\n  font-size: 20px;\r\n  cursor: pointer;\r\n  transition: visibility 0.3s ease;\r\n}\r\n\r\n.slate:hover .block-button {\r\n  visibility: visible;\r\n}\r\n\r\n.slate .block-button:hover {\r\n  background-color: rgb(223, 223, 223);\r\n}\r\n\r\n#toggle-bar {\r\n  position: absolute;\r\n  z-index: 9999;\r\n  box-shadow: 3px 5px 10px rgb(0 0 0 / 20%);\r\n  opacity: 0.95;\r\n  background-color: white;\r\n  transition: visibility 0.3s ease-in;\r\n}\r\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 

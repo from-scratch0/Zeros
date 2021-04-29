@@ -9,14 +9,14 @@ import { CustomEditor } from "@/scripts/customEditor";
 import ZerosToggle from './zerosToggle';
 import _ from "lodash";
 
-const SlateBlock = ({ blockId, initialValue }) => {
+const SlateBlock = ({ blockId, initialValue, addBlock }) => {
     const editor = useMemo(() => withReact(createEditor()), []);
 
     const [value, setValue] = useState(
         [initialValue] || [
             {
                 type: 'paragraph',
-                children: [{ text: 'A line of text in a paragraph.' }],
+                children: [{ text: '请输入内容...' }],
             },
         ]
     );
@@ -32,7 +32,10 @@ const SlateBlock = ({ blockId, initialValue }) => {
 
         // toggleBar
         const selection = editor.selection;
-        if(!selection || Range.isCollapsed(selection) ) setVisible(false);
+        if(!selection || Range.isCollapsed(selection) ) {
+            setVisible(false);
+            return;
+        }
 
         const toggleBarShow = _.debounce(() => {
             setVisible(true);
@@ -94,7 +97,7 @@ const SlateBlock = ({ blockId, initialValue }) => {
             onChange={handleChange}
         >
             {visible ? <ZerosToggle blockId={blockId}/> : null}
-            <div className="slate" >
+            <div className="slate" data-blockid={blockId} >
                 <Editable 
                     //data-block-id={blockId}
                     renderElement={renderElement}
@@ -102,24 +105,24 @@ const SlateBlock = ({ blockId, initialValue }) => {
                     className="editable"
                     onKeyDown={handleKeyDown}
                 />
+                <button
+                    className="block-button switch"
+                    onMouseDown={event => {
+                        event.preventDefault();
+                    }}
+                >
+                ···
+                </button>
                 <div className="block-buttons">
-                    <button
-                        className="block-button switch"
-                        onMouseDown={event => {
-                            event.preventDefault();
-                        }}
-                    >
-                    ···
-                    </button>
+                    
                     <button
                         className="block-button add-after"
-                        onMouseDown={event => {
-                            event.preventDefault();
-                        }}
+                        onMouseDown={() => addBlock(blockId)}
                     >
                     +
                     </button>
                 </div>
+                
             </div>
         </Slate>
     )

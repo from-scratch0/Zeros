@@ -27,7 +27,7 @@
 }
 
 .slate .block-button {
-  visibility: visible;
+  visibility: hidden;
   width: auto;
   border: none;
   background-color: white;
@@ -35,6 +35,11 @@
   border-radius: 2px;
   font-size: 20px;
   cursor: pointer;
+  transition: visibility 0.3s ease;
+}
+
+.slate:hover .block-button {
+  visibility: visible;
 }
 
 .slate .block-button:hover {

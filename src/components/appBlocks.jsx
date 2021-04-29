@@ -18,9 +18,26 @@ const AppBlocks = () => {
         getContent().then(res=>{
             setContent(res);
         });
-    }, [content])
+    }, [content]);
 
     document.ondragstart = function(){ return false };
+
+    const addBlock = (blockId) => {
+        const newItem = {
+            _id: Date.now().toString(),
+            type: 'paragraph',
+            selection: {
+                anchor: { path: [0, 0], offset: 0 },
+                focus: { path: [0, 0], offset: 2 },
+              },
+            children: [{ text: '' }],
+        };
+        content.splice(_.findIndex(content, (item) => (item._id == blockId)) + 1, 
+                                        0, newItem);
+        setContent(content.slice()); //
+          
+        // const point = Editor.start(editor, [0, 0]);
+    }
 
     return ( 
         <div id="editArea">         
@@ -29,7 +46,8 @@ const AppBlocks = () => {
                         content.map(
                             (item) => <SlateBlock key={item._id} 
                                                 blockId={item._id} 
-                                                initialValue={_.pick(item, ["type", "children"])} />)
+                                                initialValue={_.pick(item, ["type","selection","children"])} 
+                                                addBlock={addBlock}/>)
                     }
                 </div>
             
